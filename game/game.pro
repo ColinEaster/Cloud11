@@ -2,6 +2,8 @@ TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
+CONFIG += c++11
+QMAKE_CXXFLAGS += -stdlib=libc++
 
 SOURCES += \
     gameobject.cpp \
@@ -28,4 +30,4 @@ HEADERS += ../GameServer/gamestart.h \
     ../GoFishClient/gfclientmess.h
 
 
-QMAKE_CXXFLAGS += -std=c++11
+

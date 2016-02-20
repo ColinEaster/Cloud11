@@ -2,6 +2,7 @@ TEMPLATE = subdirs
 
 CONFIG -= console
 CONFIG += c++11
+QMAKE_CXXFLAGS += -stdlib=libc++
 
 SUBDIRS += \
     client_GUI \
@@ -15,4 +16,4 @@ SUBDIRS += \
     GoFishServer \
     GoFishClient
 
-QMAKE_CXXFLAGS += -stdlib=libc++
+

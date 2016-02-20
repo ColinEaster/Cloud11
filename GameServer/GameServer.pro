@@ -2,6 +2,8 @@ TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
+CONFIG += c++11
+QMAKE_CXXFLAGS += -stdlib=libc++
 
 SOURCES += main.cpp \
     gameserver.cpp

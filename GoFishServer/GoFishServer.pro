@@ -2,6 +2,8 @@ TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
+CONFIG += c++11
+QMAKE_CXXFLAGS += -stdlib=libc++
 
 #Internal
 
@@ -51,4 +53,4 @@ HEADERS += \
     ../GoFish/table.h \
     ../GoFish/deck.h
 
-QMAKE_CXXFLAGS += -std=c++11
+

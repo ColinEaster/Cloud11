@@ -3,6 +3,9 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
+CONFIG += c++11
+QMAKE_CXXFLAGS += -stdlib=libc++
+
 SOURCES += main.cpp \
     clientsocket.cpp \
     format.cpp \
@@ -28,4 +31,5 @@ HEADERS += \
     ../Nim/nim_messages.h
 
 LIBS += -pthread
-QMAKE_CXXFLAGS += -pthread -std=c++11
+QMAKE_CXXFLAGS += -pthread
+

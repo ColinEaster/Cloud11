@@ -12,6 +12,7 @@ TARGET = client_GUI
 TEMPLATE = app
 CONFIG -= console
 CONFIG += c++11
+QMAKE_CXXFLAGS += -stdlib=libc++
 
 SOURCES += client_main.cpp\
         client_gui.cpp \
@@ -32,7 +33,6 @@ FORMS    += client_gui.ui \
 
 RESOURCES += images.qrc
 
-QMAKE_CXXFLAGS += -stdlib=libc++
 
 SOURCES +=  ../server/clientsocket.cpp\
     ../server/serversocket.cpp\

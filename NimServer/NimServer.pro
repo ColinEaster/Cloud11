@@ -2,6 +2,8 @@ TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
+CONFIG += c++11
+QMAKE_CXXFLAGS += -stdlib=libc++
 
 SOURCES += main.cpp \
     nimserver.cpp
@@ -39,6 +41,6 @@ SOURCES+= ../server/format.cpp \
 
 LIBS += -pthread
 
-QMAKE_CXXFLAGS += -pthread -std=c++11
+QMAKE_CXXFLAGS += -pthread
 
 
