@@ -17,8 +17,8 @@
 //#include "../GoFishClient/gfclientmess.h"
 #include "../GoFishServer/gfservermess.h"
 
-#define I_HATE_CPP(HACK) \
-    virtual void handle(HACK *message) { serverHandler->handleTemplate(client, message); }
+#define HANDLE_MESSAGE(MESSAGE) \
+    virtual void handle(MESSAGE *message) { serverHandler->handleTemplate(client, message); }
 
 class ServerSocket {
 public:
@@ -39,26 +39,26 @@ private:
     class HandlerAdapter : public MessageHandler {
     public:
         HandlerAdapter(ClientID client, ServerMessageHandler *serverHandler) : client(client), serverHandler(serverHandler) { }
-        I_HATE_CPP(Ping)
-        I_HATE_CPP(JoinLobby)
-        I_HATE_CPP(JoinLobbySuccess)
-        I_HATE_CPP(JoinLobbyFailure)
-        I_HATE_CPP(GameStart)
-        I_HATE_CPP(GameStartSuccess)
-        I_HATE_CPP(GameStartFailure)
-        I_HATE_CPP(GameOver)
-        I_HATE_CPP(GameOverSuccess)
-        I_HATE_CPP(GameOverFailure)
-        I_HATE_CPP(UpdateLobby)
-        I_HATE_CPP(ChatInput)
-        I_HATE_CPP(ChatIncoming)
-        I_HATE_CPP(NimInput)
-        I_HATE_CPP(NimIncoming)
-        I_HATE_CPP(PlayerRemovedItems)
-        I_HATE_CPP(PlayerTurn)
-        I_HATE_CPP(ReceiveEndTurn)
-        I_HATE_CPP(Ask)
-        I_HATE_CPP(PutDown)
+        HANDLE_MESSAGE(Ping)
+        HANDLE_MESSAGE(JoinLobby)
+        HANDLE_MESSAGE(JoinLobbySuccess)
+        HANDLE_MESSAGE(JoinLobbyFailure)
+        HANDLE_MESSAGE(GameStart)
+        HANDLE_MESSAGE(GameStartSuccess)
+        HANDLE_MESSAGE(GameStartFailure)
+        HANDLE_MESSAGE(GameOver)
+        HANDLE_MESSAGE(GameOverSuccess)
+        HANDLE_MESSAGE(GameOverFailure)
+        HANDLE_MESSAGE(UpdateLobby)
+        HANDLE_MESSAGE(ChatInput)
+        HANDLE_MESSAGE(ChatIncoming)
+        HANDLE_MESSAGE(NimInput)
+        HANDLE_MESSAGE(NimIncoming)
+        HANDLE_MESSAGE(PlayerRemovedItems)
+        HANDLE_MESSAGE(PlayerTurn)
+        HANDLE_MESSAGE(ReceiveEndTurn)
+        HANDLE_MESSAGE(Ask)
+        HANDLE_MESSAGE(PutDown)
     private:
         const ClientID client;
         ServerMessageHandler *serverHandler;
@@ -92,5 +92,5 @@ void ServerSocket::broadcast(T *message) {
         client.second->send(message);
     }
 }
-
+#undef HANDLE_MESSAGE
 #endif // SERVERSOCKET_H
