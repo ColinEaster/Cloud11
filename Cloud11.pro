@@ -14,6 +14,7 @@ SUBDIRS += \
     GameServer \
     NimServer \
     GoFishServer \
-    GoFishClient
+    GoFishClient\
+    client_controller
 
 
