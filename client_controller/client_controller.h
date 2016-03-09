@@ -6,7 +6,7 @@
 #include <map>
 #include "../client_GUI/client_gui.h"
 
-class ClientController: public QObject
+class ClientController: public QObject, public MessageHandler
 {
     Q_OBJECT
 
@@ -14,28 +14,70 @@ public:
     ClientController();
     ~ClientController();
 
+    // message handlers
+    void handle(UpdateLobby *msg);
+    void handle(JoinLobbySuccess *message);
+    void handle(ChatIncoming *msg);
+    void handle(NimIncoming *msg);
+    void handle(GameStart *);
+
+
+
 public slots:
-    void receiveName(std::string name);
+    void receiveUserName(std::string name);
     void receiveIP(std::string ip);
     void receiveHostDecision(bool wantsToHost);
+    void receiveGameNameDecision(std::string);
+    void startGamePressed(); // only the host can press this
+    void startGameReceived(); // called on receipt of start game message
+
+    void makeNimGameAndGui();
+
+signals:
+    void updatePlayerList(std::vector<string>);
 
 protected:
-    client_GUI* clientGUI;
+    client_GUI* clientGui;
+    chat* chatwindow;
+
+    GameServer* server;
+
+    Socket* clientSocket;
+
+    QWidget* gameGui;
+    Game* game;
 
 private:
+    static const int port_num = 31460;
+
     void startGame(std::string gameName){};
-    void mapClientAndServerFunctions(){};
+    void mapClientAndServerFunctions();
 
-    typedef void (*serverFunction)(int);
-    typedef void (*clientFunction)(void);
-    std::map<std::string, serverFunction> serverCreationFunctions;
-    std::map<std::string, clientFunction> clientGuiCreationFunctions;
+    void createAppropriateGameServer(std::string gameName);
+    void connectToClientGui();
 
+    // server creation functions
+    void makeGameServer(int port);
+
+    // client creation functions
+
+
+    void createChat();
+
+    //typedef GameServer* (ClientController::*serverFunction)(int);
+    //typedef Game* (*clientFunction)(Socket*);
+    //typedef std::map<std::string, serverFunction> serverCreationFunctionMap;
+    //serverCreationFunctionMap serverCreationFunctions;
+    std::map<std::string, const char*> clientGuiCreationFunctions;
+
+    std::string gameChosen = "";
     std::string playerName = "";
-    std::string ipToConnectTo = "";
+    std::string ipToConnectTo = "127.0.0.1";
     bool isHosting = false;
 
 
 };
+
+Q_DECLARE_METATYPE(std::vector<string>)
 
 #endif // CLIENTCONTROLLER_H

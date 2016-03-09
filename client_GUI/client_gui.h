@@ -22,7 +22,7 @@ namespace Ui {
 class client_GUI;
 }
 
-class client_GUI : public QWidget, public MessageHandler
+class client_GUI : public QWidget
 {
     Q_OBJECT
 
@@ -30,11 +30,12 @@ public:
     static const int port_num = 31460;
     explicit client_GUI(QWidget *parent = 0);
     ~client_GUI();
-    void handle(UpdateLobby *msg);
-    void handle(JoinLobbySuccess *message);
-    void handle(ChatIncoming *msg);
-    void handle(NimIncoming *msg);
-    void handle(GameStart *);
+
+    // old
+//    void handle(JoinLobbySuccess *message);
+//    void handle(ChatIncoming *msg);
+//    void handle(NimIncoming *msg);
+//    void handle(GameStart *);
 
     void thisPageIsOnFire();
 
@@ -48,6 +49,17 @@ public:
         std::condition_variable cv;
         while (true) cv.wait(lock);
     }*/
+
+public slots:
+    void receiveUpdatedPlayerList(std::vector<std::string> playerList);
+
+signals:
+    void nameEntered(std::string name);
+    void ipAddressEntered(std::string ip);
+    void hostDecision(bool willHost);
+    void gameChosenInGui(std::string gameName);
+    void startGamePressed(void);
+    void clientGuiClosed();
 
 private slots:
     /// reset default styles no accessible via stylesheet
@@ -97,12 +109,14 @@ private:
     Ui::client_GUI *ui;
     QString userID; /**< the userID for client */
     vector<string*> *playerList; /**< the list of players in the lobby you host. */
-    string gameChosen;
+    string gameChosenFromList;
     Socket *CS;
-    GameServer *server;
-    Game *game;
-    chat *chatwindow;
-    Nim_GUI *nimwindow;
+
+    // old
+//    GameServer *server;
+//    Game *game;
+//    chat *chatwindow;
+//    Nim_GUI *nimwindow;
     void closeEvent(QCloseEvent *);
 
     template<typename T>

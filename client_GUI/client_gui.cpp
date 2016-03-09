@@ -52,16 +52,19 @@ client_GUI::client_GUI(QWidget *parent) :
 /** Destructor */
 client_GUI::~client_GUI()
 {
-    delete chatwindow;
-    delete CS;
+    //old
+//    delete chatwindow;
+//    delete CS;
     delete ui;
 }
 
 
 void client_GUI::closeEvent(QCloseEvent *)
 {
-    delete chatwindow;
-    delete CS;
+    emit clientGuiClosed();
+    //old (first two)
+    //delete chatwindow;
+    //delete CS;
 //    chatwindow->hide();
 //    delete this;
 }
@@ -98,6 +101,7 @@ void client_GUI::on_IDInput_returnPressed()
         ui->IDOutput->setText(userID); /**< set IDOutput of UI page_1 */
         ui->stackedWidget->setCurrentIndex(1); /**< go to page_1 */
     }
+    emit nameEntered(userID.toStdString());
 }
 /**
  * @brief client_GUI::thisPageIsOnFire
@@ -191,7 +195,7 @@ void client_GUI::on_creategameButton_clicked()
     if (game_selected.length()>0 && myIP.length() > 0 && validChoice(game_selected[0]) ) /**< ensure game select before to page_3 */
     {
         QListWidgetItem *game_chosen = game_selected[0]; /**< Pass the name of game chosen */
-        gameChosen = game_chosen->text().toStdString(); /**< set the game chosen of client */
+        gameChosenFromList = game_chosen->text().toStdString(); /**< set the game chosen of client */
         ui->title_gamechosen->setText(game_chosen->text()); /**< Set game name in page_3 */
         ui->kickButton->hide(); /**< temporarily hide the kick button */
         /// create server and make visible
@@ -202,24 +206,28 @@ void client_GUI::on_creategameButton_clicked()
         ui->player_list->insertItem(0, userID); /**< Populate player_list with host's userID */
         ui->stackedWidget->setCurrentIndex(3); /**< go to page_3 */
 
-        /// Launch Server
-        //std::thread(&(client_GUI::LaunchICBMs<GameServer>)).detach();
-        server = serverFunctions[gameChosen](port_num);
+        // emit signals to controller about ip address and which game was chosen
+        emit ipAddressEntered(myIP.toStdString());
+        emit gameChosenInGui(gameChosenFromList);
 
-        /**< 1 player emergency backup */
-        /**< 1 player emergency backup */
-        /// Connect the the server aforesaid
-        CS = new Socket(myIP.toStdString().c_str(), port_num, this);
-        CS->connect();
-//        /// Create a message to join lobby, converting QString into stdString
-        JoinLobby *jl = new JoinLobby(userID.toStdString());
-        CS->send(jl);
-        /**< 1 player emergency backup */
-        /**< 1 player emergency backup */
+//        /// Launch Server
+//        // this line was old before signals //std::thread(&(client_GUI::LaunchICBMs<GameServer>)).detach();
+//        server = serverFunctions[gameChosenFromList](port_num);
 
-        chatwindow = new chat();
-        chatwindow->setClientSocket(CS);
-        chatwindow->show(); /**< Show the chat */
+//        /**< 1 player emergency backup */
+//        /**< 1 player emergency backup */
+//        /// Connect the the server aforesaid
+//        CS = new Socket(myIP.toStdString().c_str(), port_num, this);
+//        CS->connect();
+//        // Create a message to join lobby, converting QString into stdString
+//        JoinLobby *jl = new JoinLobby(userID.toStdString());
+//        CS->send(jl);
+//        /**< 1 player emergency backup */
+//        /**< 1 player emergency backup */
+
+//        chatwindow = new chat();
+//        chatwindow->setClientSocket(CS);
+//        chatwindow->show(); /**< Show the chat */
 
 
     }
@@ -243,8 +251,9 @@ void client_GUI::on_input_IP_returnPressed()
 /** Abandon game: Go to page_1 from page_3 */
 void client_GUI::on_backto_page_1_f3_clicked()
 {
-    delete chatwindow;
-    delete CS;
+    // old
+//    delete chatwindow;
+//    delete CS;
     ui->stackedWidget->setCurrentIndex(1);
 }
 
@@ -272,16 +281,16 @@ void client_GUI::on_kickButton_clicked()
  */
 void client_GUI::on_startgameButton_clicked()
 {
-//    if (gameChosen == "Go Fish") {
+//    if (gameChosenFromList == "Go Fish") {
 //        start_GoFish();
 //    }
-//    else if (gameChosen == "Nim") {
+//    else if (gameChosenFromList == "Nim") {
 //        delete chatwindow;
 //        server->
 //        start_Nim();
 //    }
-    GameStart message(42);
-    server->socket->broadcast(&message);
+    emit startGamePressed();
+
 }
 
 /**
@@ -309,20 +318,21 @@ void client_GUI::on_input_hostaddr_returnPressed()
         /// clear player_list, keep listening from host for dynamic update
         ui->player_list_joined->clear();
 
+        emit ipAddressEntered(tojoin_hostaddr.toStdString());
 
+        // before signals were introduced
+//        /// Create a client Socket with the hostaddr, and a port
 
-        /// Create a client Socket with the hostaddr, and a port
+//        CS = new Socket(tojoin_hostaddr.toStdString().c_str(), port_num, this);
+//        CS->connect();
 
-        CS = new Socket(tojoin_hostaddr.toStdString().c_str(), port_num, this);
-        CS->connect();
+//        /// Create a message to join lobby, converting QString into stdString
+//        JoinLobby *jl = new JoinLobby(userID.toStdString());
+//        CS->send(jl);
 
-        /// Create a message to join lobby, converting QString into stdString
-        JoinLobby *jl = new JoinLobby(userID.toStdString());
-        CS->send(jl);
-
-        chatwindow = new chat();
-        chatwindow->setClientSocket(CS);
-        chatwindow->show(); /**< Show the chat */
+//        chatwindow = new chat();
+//        chatwindow->setClientSocket(CS);
+//        chatwindow->show(); /**< Show the chat */
 
 
 
@@ -349,8 +359,9 @@ void client_GUI::on_searchjoinButton_clicked()
 void client_GUI::on_backto_page_1_f5_clicked()
 {
     /// terminate connection
-    delete chatwindow;
-    delete CS;
+    // old
+//    delete chatwindow;
+//    delete CS;
     on_backto_page_1_f4_clicked(); /**< shorthand, call the back button */
 
 }
@@ -405,12 +416,14 @@ void client_GUI::start_Nim()
 //    server->startGame();
     /**< 1 player emergency backup */
     /**< 1 player emergency backup */
-    nimwindow = new Nim_GUI();
-    nimwindow->setClientSocket(CS);
 
-//    nimwindow->setPapa(this);
-    nimwindow->show(); /**< Show the Nim_GUI */
-    this->hide(); /**< Hide this client GUI */
+//    // old
+//    nimwindow = new Nim_GUI();
+//    nimwindow->setClientSocket(CS);
+
+////    nimwindow->setPapa(this); // old before old
+//    nimwindow->show(); /**< Show the Nim_GUI */
+//    this->hide(); /**< Hide this client GUI */
     /**< 1 player emergency backup */
     /**< 1 player emergency backup */
 
@@ -424,28 +437,29 @@ void client_GUI::showSelf()
 {
     ui->stackedWidget->setCurrentIndex(0);
     this->show();
-//    if (gameChosen == "Go Fish") {
+//    if (gameChosenFromList == "Go Fish") {
 //        start_GoFish();
 //    }
-//    else if (gameChosen == "Nim") {
+//    else if (gameChosenFromList == "Nim") {
 //        start_Nim();
 //    }
 }
 
 
+
 /**
- * @brief client_GUI::handle
+ * @brief client_GUI::receiveUpdatedPlayerList
  * Update the player list in Joined lobby/host lobby
  */
-void client_GUI::handle(UpdateLobby *msg)
+void client_GUI::receiveUpdatedPlayerList(std::vector<string> playerList)
 {
     /// clear player list in joined and host lobbies
     ui->player_list->clear();
     ui->player_list_joined->clear();
-    /// readd current players
+    /// read current players
     QListWidgetItem *item, *item2;
     cout << "trying to update lobby" << endl;
-    for (auto it = msg->playerlist.begin(); it != msg->playerlist.end(); ++it)
+    for (auto it = playerList.begin(); it != playerList.end(); ++it)
     {
         item = new QListWidgetItem(QString::fromStdString(*it));
         item2 = new QListWidgetItem(QString::fromStdString(*it));
@@ -455,67 +469,68 @@ void client_GUI::handle(UpdateLobby *msg)
         cout << "done with one" << endl;
     }
 }
-/**
- * @brief client_GUI::handle Handles a successful join lobby message from the server.
- * @param message contains the type of game that will be played.
- */
-void client_GUI::handle(JoinLobbySuccess *message)
-{
-    //auto func = clientFunctions[message->gameType];
-//    game = func(CS);
+///**
+// * @brief client_GUI::handle Handles a successful join lobby message from the server.
+// * @param message contains the type of game that will be played.
+// */
+//void client_GUI::handle(JoinLobbySuccess *message)
+//{
+//    //auto func = clientFunctions[message->gameType];
+////    game = func(CS);
 
-}
+//}
 
 
-/**
- * @brief client_GUI::handle
- * Update the chat messages
- */
-void client_GUI::handle(ChatIncoming *msg)
-{
-    cout << "trying to update chat" << endl;
-    chatwindow-> addChatString(msg->chatString);
-}
+///**
+// * @brief client_GUI::handle
+// * Update the chat messages
+// */
+//void client_GUI::handle(ChatIncoming *msg)
+//{
+//    cout << "trying to update chat" << endl;
+//    chatwindow-> addChatString(msg->chatString);
+//}
 
-/**
- * @brief client_GUI::handle
- * Update the chat messages
- */
-void client_GUI::handle(NimIncoming *msg)
-{
-    cout << "trying to update nimincoming" << endl;
-    vector<string> *v3 = new vector<string>();
-    v3->push_back(msg->msg);
-    string name = "Keng";
-    bool your_turn = true;
-    cout << "trying to refresh nim screen" << msg->stoneRemain << msg->msg << name << your_turn << endl;
-
-    //    Test: call the refresh screen method
-    //cout << "Handler thread: " << std::this_thread::get_id() << endl;
-    qRegisterMetaType<string>();
-    qRegisterMetaType<vector<string>*>();
-    QMetaObject::invokeMethod(nimwindow, "refresh_screen", Qt::QueuedConnection,
-                              Q_ARG(int, msg->stoneTaken),
-                              Q_ARG(int, msg->stoneRemain),
-                              Q_ARG(vector<string>*, v3),
-                              Q_ARG(string, name),
-                              Q_ARG(bool, your_turn));
-    //nimwindow->refresh_screen(msg->stoneTaken, msg->stoneRemain, v3, name, your_turn);
+///**
+// * @brief client_GUI::handle
+// * Update the chat messages
+// */
+//void client_GUI::handle(NimIncoming *msg)
+//{
+//    cout << "trying to update nimincoming" << endl;
 //    vector<string> *v3 = new vector<string>();
-//    v3->push_back("The game begins!");
+//    v3->push_back(msg->msg);
 //    string name = "Keng";
 //    bool your_turn = true;
-//    ui->game_log->clear();
+//    cout << "trying to refresh nim screen" << msg->stoneRemain << msg->msg << name << your_turn << endl;
 
 //    //    Test: call the refresh screen method
-//    nimwindow->refresh_screen(100, v3, name, your_turn);
-}
+//    //cout << "Handler thread: " << std::this_thread::get_id() << endl;
+//    qRegisterMetaType<string>();
+//    qRegisterMetaType<vector<string>*>();
+//    QMetaObject::invokeMethod(nimwindow, "refresh_screen", Qt::QueuedConnection,
+//                              Q_ARG(int, msg->stoneTaken),
+//                              Q_ARG(int, msg->stoneRemain),
+//                              Q_ARG(vector<string>*, v3),
+//                              Q_ARG(string, name),
+//                              Q_ARG(bool, your_turn));
+//    //nimwindow->refresh_screen(msg->stoneTaken, msg->stoneRemain, v3, name, your_turn);
+////    vector<string> *v3 = new vector<string>();
+////    v3->push_back("The game begins!");
+////    string name = "Keng";
+////    bool your_turn = true;
+////    ui->game_log->clear();
 
-void client_GUI::handle(GameStart *) {
-    QMetaObject::invokeMethod(this, "start_Nim", Qt::QueuedConnection);
-}
+////    //    Test: call the refresh screen method
+////    nimwindow->refresh_screen(100, v3, name, your_turn);
+//}
+
+//void client_GUI::handle(GameStart *) {
+//    QMetaObject::invokeMethod(this, "start_Nim", Qt::QueuedConnection);
+//}
 
 
-std::map<std::string, client_GUI::Silliness> client_GUI::serverFunctions = { { "Nim", &(client_GUI::makeServer<GameServer>) }, { "Go Fish", &(client_GUI::makeServer<GameServer>) } };
-std::map<std::string, client_GUI::ClientSilliness> client_GUI::clientFunctions = { { "Nim", &(client_GUI::makeGame<Nim>) }, { "Go Fish", &(client_GUI::makeGame<Nim>) } };
+
+//std::map<std::string, client_GUI::Silliness> client_GUI::serverFunctions = { { "Nim", &(client_GUI::makeServer<GameServer>) }, { "Go Fish", &(client_GUI::makeServer<GameServer>) } };
+//std::map<std::string, client_GUI::ClientSilliness> client_GUI::clientFunctions = { { "Nim", &(client_GUI::makeGame<Nim>) }, { "Go Fish", &(client_GUI::makeGame<Nim>) } };
 

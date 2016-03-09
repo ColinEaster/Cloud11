@@ -22,10 +22,7 @@ protected:
      * @brief player A vector of client ID's
      */
     std::vector<ClientID> player;
-    /**
-     * @brief socket Socket used to send messages.
-     */
-    ServerSocket * socket;
+
     /**
      * @brief userNameMap A map connecting client ID numbers to player names.
      */
@@ -38,7 +35,10 @@ public:
      * @param port The port used for communication.
      */
     GameServer(int port);
-
+    /**
+     * @brief socket Socket used to send messages.
+     */
+    ServerSocket * socket;
     /**
      * @brief gameOver Called when the game ends.
      * @return
