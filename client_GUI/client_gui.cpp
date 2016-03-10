@@ -30,6 +30,7 @@
 #include <condition_variable>
 #include "chat.h"
 #include "../Nim/nim.h"
+#include <qDebug>
 
 /**
  * @brief client_GUI::client_GUI
@@ -140,6 +141,7 @@ void client_GUI::on_backto_page_0_clicked()
 /** To Hosting: page_2 */
 void client_GUI::on_hostButton_clicked()
 {
+    emit hostDecision(true);
     ui->game_list->clearSelection(); /**< clear the selection on game_list */
     delete playerList;
     playerList = new vector<string*>(); /**< reset the playerList stored in class */
@@ -149,6 +151,8 @@ void client_GUI::on_hostButton_clicked()
 /** To Joining: page_4 */
 void client_GUI::on_joinButton_clicked()
 {
+    emit hostDecision(false);
+
     ui->input_hostaddr->clear(); /**< clear the input field for hostaddr */
 //    ui->join_status->clear(); /**< clear the status at bottom */
     ui->stackedWidget->setCurrentIndex(4);
@@ -206,8 +210,9 @@ void client_GUI::on_creategameButton_clicked()
         ui->player_list->insertItem(0, userID); /**< Populate player_list with host's userID */
         ui->stackedWidget->setCurrentIndex(3); /**< go to page_3 */
 
-        // emit signals to controller about ip address and which game was chosen
-        emit ipAddressEntered(myIP.toStdString());
+        // emit signal to controller aboutwhich game was chosen
+
+        qDebug() << "emitting gameChosen in gui";
         emit gameChosenInGui(gameChosenFromList);
 
 //        /// Launch Server
@@ -453,6 +458,8 @@ void client_GUI::showSelf()
  */
 void client_GUI::receiveUpdatedPlayerList(std::vector<string> playerList)
 {
+    qDebug() << "updating player list...";
+
     /// clear player list in joined and host lobbies
     ui->player_list->clear();
     ui->player_list_joined->clear();

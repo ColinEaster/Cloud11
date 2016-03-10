@@ -25,6 +25,7 @@ ClientController::~ClientController(){
 }
 
 void ClientController::connectToClientGui(){
+    qRegisterMetaType< std::vector<string> >("std::vector<string>");
     QObject::connect(this,&ClientController::updatePlayerList,clientGui, &client_GUI::receiveUpdatedPlayerList);
     QObject::connect(clientGui, &client_GUI::nameEntered, this, &ClientController::receiveUserName);
     QObject::connect(clientGui, &client_GUI::hostDecision, this, &ClientController::receiveHostDecision);
@@ -49,6 +50,9 @@ void ClientController::receiveHostDecision(bool wantsToHost){
 
 void ClientController::receiveIP(std::__1::string ip){
     ipToConnectTo = ip;
+
+    if(!isHosting)
+        createSocketAndConnectToServer();
 }
 
 void ClientController::startGamePressed(){
@@ -69,17 +73,24 @@ void ClientController::startGameReceived(){
 
 void ClientController::createAppropriateGameServer(string gameName){
     qDebug() << "make appropriate game server";
-    if(gameName == "Nim"){
-        makeGameServer(port_num);
-    }
+    if(gameName == "Nim")
+        makeGameServer();
+
 }
 
-void ClientController::makeGameServer(int port){
+void ClientController::makeGameServer(){
     qDebug() << "make game server";
-    server = new GameServer(port);
+    server = new GameServer(port_num);
 
+    createSocketAndConnectToServer();
+
+
+}
+
+void ClientController::createSocketAndConnectToServer(){
     // connect the client to the newly created server
-    clientSocket = new Socket(ipToConnectTo.c_str(), port, this);
+    qDebug() << "creating client socket";
+    clientSocket = new Socket(ipToConnectTo.c_str(), port_num, this);
     clientSocket->connect();
 
     // create a message to join the lobby
@@ -87,8 +98,6 @@ void ClientController::makeGameServer(int port){
     clientSocket->send(jl);
 
     createChat();
-
-
 }
 
 void ClientController::createChat(){
@@ -114,6 +123,10 @@ void ClientController::mapClientAndServerFunctions(){
     clientGuiCreationFunctions.insert({"Nim", "makeNimGameAndGui"});
     qDebug() << "result of map: " << clientGuiCreationFunctions["Nim"];
 }
+void ClientController::emitUpdatePlayerList(UpdateLobby* msg){
+    emit updatePlayerList(msg->playerlist);
+    delete msg;
+}
 
 /**
  * @brief ClientController::handle
@@ -121,8 +134,9 @@ void ClientController::mapClientAndServerFunctions(){
  */
 void ClientController::handle(UpdateLobby *msg)
 {
+    //QMetaObject::invokeMethod(this, "emitUpdatePlayerList", Qt::QueuedConnection, Q_ARG(UpdateLobby*, msg));
     emit updatePlayerList(msg->playerlist);
-
+    delete msg;
 }
 /**
  * @brief client_GUI::handle Handles a successful join lobby message from the server.

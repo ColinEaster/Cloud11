@@ -32,6 +32,7 @@ public slots:
     void startGameReceived(); // called on receipt of start game message
 
     void makeNimGameAndGui();
+    void emitUpdatePlayerList(UpdateLobby* msg);
 
 signals:
     void updatePlayerList(std::vector<string>);
@@ -55,12 +56,12 @@ private:
 
     void createAppropriateGameServer(std::string gameName);
     void connectToClientGui();
+    void createSocketAndConnectToServer();
 
     // server creation functions
-    void makeGameServer(int port);
+    void makeGameServer();
 
     // client creation functions
-
 
     void createChat();
 
@@ -78,6 +79,6 @@ private:
 
 };
 
-Q_DECLARE_METATYPE(std::vector<string>)
+//Q_DECLARE_METATYPE(std::vector<string>)
 
 #endif // CLIENTCONTROLLER_H
