@@ -27,99 +27,98 @@
 #include <thread>
 #include "../NimServer/nimserver.h"
 #include <condition_variable>
+#include <algorithm> // for find
 
 Nim::Nim(Socket * sock) : Game(sock)
 {
     gameNotOver = true;
-    opponentMoveReceived = false;
-    log = new vector<std::string>();
-    objects->addToEnd(GameObject(1));
-    objects->addToEnd(GameObject(2));
-    objects->addToEnd(GameObject(1));
+
+    amountsThatCanBeRemoved.push_back(1);
+    amountsThatCanBeRemoved.push_back(2);
+
 
 
 }
 
-void Nim::run()
-{
-    cout << "calling Nim::run" << endl;
-    gui = new Nim_GUI();
-    gui->show();
-    log->push_back("Started game.");
-    gui->refresh_screen(0, objects->size(),log,"You",true);
+Nim::Nim(Socket *client_socket, std::vector<std::string> playerList, std::string playerName, bool hosting): Game(client_socket){
+    gameNotOver = true;
+    yourTurn = hosting;
 
-     //check server for who starts
-    waitForOpponent();
-    if(startingPlayer)
-        makeMove();
-
-    while(gameNotOver){
-
-        if(checkForGameOver())
-            break;
-    // send PlayerRemovedItems message with removeNum
-        // wait for opponent's move
-        waitForOpponent();
-        gui->refresh_screen(0, objects->size(),log,"Opponent",true);
-        if(checkForGameOver())
-                break;
-        makeMove();
-    }
+    amountsThatCanBeRemoved.push_back(1);
+    amountsThatCanBeRemoved.push_back(2);
+    this->playerName = playerName;
+    std::remove(playerList.begin(), playerList.end(), playerName);
+    opponentName = playerList[0];
 
 }
 
-void Nim::makeMove()
-{
-      int removeNum;
-
-
-
-    while(gui->moved == false)
-    {
-        wait(5000);
+void Nim::receiveUserWantsToRemoveStones(int numberOfStonesRemoved){
+    // check if your turn?
+    if(checkIfNumberOfStonesIsValid(numberOfStonesRemoved)){
+        emit allowInput(opponentName, false);
+        NimInput* message = new NimInput(numberOfStonesRemoved, "" );
+        socket->send(message);
+        delete message;
 
     }
-    removeNum = gui->get_input();
-    gui->refresh_screen(0, objects->size(),log,"Opponent",false);
-    socket->send(new PlayerRemovedItems(removeNum));
+    else {
+        emit displayMessage(Error_Message);
+        emit allowInput(playerName, true);
+    }
+}
+
+void Nim::startGame(){
+    if(yourTurn)
+    emit allowInput(playerName,yourTurn);
+    else
+    emit allowInput(opponentName,yourTurn);
+}
+
+void Nim::nimIncomingMessageReceived(int stonesTaken){
+    numStones -= stonesTaken;
+    emit displayMessage(stonesTaken + ": stone(s) were taken.");
+    emit displayStones(numStones);
+    if(numStones < *std::min_element(amountsThatCanBeRemoved.begin(),amountsThatCanBeRemoved.end()))
+        endTheGame();
+
+    if(yourTurn){
+        yourTurn = false;
+        emit allowInput(opponentName, yourTurn);
+    }
+    else{
+        yourTurn = true;
+        emit allowInput(playerName, yourTurn);
+    }
+}
+
+bool Nim::checkIfNumberOfStonesIsValid(const int &num){
+    if(std::find(amountsThatCanBeRemoved.begin(),amountsThatCanBeRemoved.end(),num) != amountsThatCanBeRemoved.end())
+        return true;
+
+    return false;
 }
 
 bool Nim::checkForGameOver()
 {
 
-    if(objects->size() < 2){
+    if(numStones < 2){
        gameNotOver = false;
        return true;
     }
     return false;
 }
 
+void Nim::endTheGame(){
+    std::cout << "done";
+    emit displayMessage("The game is over.");
+    emit quitGame();
+}
+
 void Nim::gameOver(){
     std::cout << "Game Over." << std::endl;
 }
 
-void Nim::waitForOpponent()
-{
-    //std::cout << "Waiting for opponent..." << std::endl;
-    while(!opponentMoveReceived)
-    {
-    wait(5000);
 
-    opponentMoveReceived = true;  // REMOVE WHEN SERVER WORKS
-    }
-    opponentMoveReceived = false;
-}
-/**
- * @brief Waits for the given number of milliseconds(taken from cplusplus forum).
- * @param milliseconds that you want to wait.
- */
-void Nim::wait( int units)
-{
-
-    clock_t start_time = clock();
-    clock_t end_time = units * 1000 + start_time;
-    while(clock() != end_time) {}
-}
 
 /**
  * @brief Handles how to receive a message saying how many items the player removed.
@@ -129,19 +128,23 @@ void Nim::handle(PlayerRemovedItems * message)
 {
 
 
-    objects->deal(message->number);
-    log->push_back("Opponent removed " + message->number);
-    opponentMoveReceived = true;
+    log.push_back("Opponent removed " + message->number);
+    yourTurn = true;
 }
 
 void Nim::handle(PlayerTurn * message)
 {
     std::cout << "handling playerturn\n";
-    opponentMoveReceived = true;
+    yourTurn = true;
     if(message->number == 1)
         startingPlayer = true;
     else
         startingPlayer = false;
 
-    run();
+}
+
+void Nim::handle(NimIncoming *msg){
+
+    QMetaObject::invokeMethod(this, "nimIncomingMessageReceived", Qt::QueuedConnection, Q_ARG(int, msg->stoneTaken));
+    delete msg;
 }

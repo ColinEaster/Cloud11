@@ -4,6 +4,7 @@
 #include "format.h"
 #include "formatutils.h"
 #include "message.h"
+#include <vector>
 
 class JoinLobby : public Message<JoinLobby> {
 public:
@@ -53,4 +54,15 @@ public:
     static Ping * implRead(char *&) { return new Ping(); }
 };
 
+class PlayerList : public Message<PlayerList> {
+public:
+    PlayerList(std::vector<std::string> list) : list(list) { }
+
+    int size() const { return Formats::size(&list); }
+    void write(char *& dest) const { Formats::write(dest, &list); }
+
+    const std::vector<std::string> list;
+
+    static PlayerList * implRead(char *&source) { return new PlayerList(Formats::read< std::vector<std::string> >(source)); }
+};
 #endif // MESSAGES_H

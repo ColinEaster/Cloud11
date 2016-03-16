@@ -12,7 +12,6 @@
 
 //#include "client_gui.h"
 
-using namespace std;
 
 namespace Ui {
 class Nim_GUI;
@@ -26,10 +25,21 @@ public:
     explicit Nim_GUI(QWidget *parent = 0);
     ~Nim_GUI();
     void setClientSocket(Socket *parentCS);
-    Q_INVOKABLE void refresh_screen(int stone_taken, int stones_remain, vector<string> *gamelog, string current_player, bool your_turn); /**< Method to refresh the screen. */
+
     int get_input();
     bool moved = false;
 //    void setPapa(client_GUI *dada);
+
+public slots:
+    void displayStones(int);
+    void updatePlayerList(std::vector<std::string>);
+    void displayMessage(std::string);
+    void allowInput(bool);
+    void announce_current_player(std::string current_player, bool your_turn);
+    void refresh_screen(int stone_taken, int stones_remain, std::vector<std::string> gamelog, std::string current_player, bool your_turn); /**< Method to refresh the screen. */
+
+signals:
+    void playerWantsToRemoveStones(int);
 
 private slots:
     void on_stone_9_clicked();
@@ -39,14 +49,16 @@ private slots:
 private:
     Ui::Nim_GUI *ui;
     Socket *CS; /**< socket from parent client GUI */
-    string stoneSrc = ":/images/circle.png"; /**< image resource filepath */
+    std::string stoneSrc = ":images/circle.png"; /**< image resource filepath */
     bool input_visible; /**< Set input bar visible if true, i.e. if it is your turn. */
 
     void clear_stones(int stones_remain); /**< clear all stones on table and hand */
     void spawn_stones(int stones_remain); /**< add stones as given from server game */
-    void append_gamelog(vector<string> *newgamelog); /**< append gamelog */
-    void announce_current_player(string current_player, bool your_turn);
-    int oneplayerstonenum = 100;
+    void append_gamelog(const std::vector<std::string> &newgamelog); /**< append gamelog */
+
+    void clearInput(bool);
+
+    int oneplayerstonenum = 20;
 
     int input = -1;
 //    client_GUI *papa;

@@ -59,6 +59,8 @@ private:
         HANDLE_MESSAGE(ReceiveEndTurn)
         HANDLE_MESSAGE(Ask)
         HANDLE_MESSAGE(PutDown)
+        HANDLE_MESSAGE(PlayerList)
+
     private:
         const ClientID client;
         ServerMessageHandler *serverHandler;

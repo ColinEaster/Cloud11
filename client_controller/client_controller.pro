@@ -2,7 +2,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = client_GUI
+TARGET = client_controller
 TEMPLATE = app
 CONFIG -= console
 CONFIG += c++11
@@ -56,4 +56,4 @@ HEADERS += ../server/clientsocket.h\
     ../client_GUI/gofish_gui.h \
     ../client_GUI/nim_gui.h
 
-#RESOURCES += ../client_GUI/images.qrc
+RESOURCES += ../client_GUI/images.qrc

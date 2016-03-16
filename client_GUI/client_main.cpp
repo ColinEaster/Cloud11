@@ -25,12 +25,12 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     //cout << "Main thread: " << std::this_thread::get_id() << endl;
-    client_GUI w;
-    w.show();
+//    client_GUI w;
+//    w.show();
 //    goFish_GUI g;
 //    g.show();
-//    Nim_GUI n;
-//    n.show();
+    Nim_GUI n;
+    n.show();
 
     return a.exec();
 }

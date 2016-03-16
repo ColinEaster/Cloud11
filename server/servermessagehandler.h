@@ -39,6 +39,7 @@ public:
     SERVER_HANDLE(ReceiveEndTurn)
     SERVER_HANDLE(Ask)
     SERVER_HANDLE(PutDown)
+    SERVER_HANDLE(PlayerList)
 
     template<typename T>
     void handleTemplate(ClientID client, T *message) {

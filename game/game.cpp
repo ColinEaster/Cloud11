@@ -46,7 +46,7 @@ void Game::handle(GameOver * message)
 {
     // trigger game over events
     // send GameOverSuccess if successful or GameOverFailure if not
-    gameOver();
+
 }
 /**
  * @brief Handles receiving a game start message from the server by calling the run method.
@@ -54,8 +54,11 @@ void Game::handle(GameOver * message)
  */
 void Game::handle(GameStart * message)
 {
-    run();
+
     // send GameStartSuccess message if successful or GameStartFailure if not
+}
+void Game::handle(ChatIncoming *message){
+    emit passChatMessage(message);
 }
 
 Game::~Game()

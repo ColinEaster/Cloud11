@@ -7,9 +7,16 @@
 #include "../GameServer/gamestart.h"
 #include "../server/messagehandler.h"
 #include "../server/clientsocket.h"
+#include <QObject>
 
-class Game:public MessageHandler
+class Game:public QObject, public MessageHandler
 {
+    Q_OBJECT
+
+signals:
+    void quitGame();
+    void passChatMessage(ChatIncoming* message);
+
 protected:
     /**
      * @brief objects A container of game objects
@@ -35,10 +42,6 @@ public:
      * @param client_socket A socket for which this class will be the handler of (i.e. this class can take over the socket from client_gui)
      */
     Game(Socket * client_socket);
-    /**
-     * @brief The method that runs when the game starts.
-     */
-    virtual void run() = 0;
 
     /**
      * @brief Method called when the game over message is received from the server.
@@ -55,6 +58,8 @@ public:
      * @param message from server indicating the game is starting
      */
     void handle(GameStart *message);
+
+    void handle(ChatIncoming* message);
 
     ~Game();
 };

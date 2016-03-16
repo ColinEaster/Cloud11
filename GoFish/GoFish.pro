@@ -1,7 +1,9 @@
+QT       += core gui
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 TEMPLATE = app
-CONFIG += console
-CONFIG -= app_bundle
-CONFIG -= qt
+CONFIG -= console
 CONFIG += c++11
 QMAKE_CXXFLAGS += -stdlib=libc++
 

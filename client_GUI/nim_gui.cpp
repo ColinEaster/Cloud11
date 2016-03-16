@@ -29,6 +29,8 @@ Nim_GUI::Nim_GUI(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Nim_GUI)
 {
+    Q_INIT_RESOURCE(images);
+
     ui->setupUi(this);
     /// first hide input bar since it's not your turn yet
     input_visible = false;
@@ -39,12 +41,9 @@ Nim_GUI::Nim_GUI(QWidget *parent) :
     ui->game_log->setAttribute(Qt::WA_MacShowFocusRect, 0);
     ui->game_log->clear();
 
-    /**< 1 player emergency backup */
-    /**< 1 player emergency backup */
-   // spawn_stones(100);
-    on_stone_9_clicked();
-    /**< 1 player emergency backup */
-    /**< 1 player emergency backup */
+
+    //on_stone_9_clicked(); // change this !!!!!!
+    spawn_stones(20);
 }
 /**
  * @brief Nim_GUI::~Nim_GUI
@@ -72,7 +71,7 @@ void Nim_GUI::setClientSocket(Socket *parentCS)
  * @param current_player The userID of the current player (may not be unique)
  * @param your_turn Whether or not it's this player's turn.
  */
-void Nim_GUI::refresh_screen(int stone_taken, int stones_remain, vector<string> *newgamelog, string current_player, bool your_turn)
+void Nim_GUI::refresh_screen(int stone_taken, int stones_remain, std::vector<std::string> newgamelog, std::string current_player, bool your_turn)
 {
     //cout << "GUI receiving thread: " << std::this_thread::get_id() << endl;
     oneplayerstonenum = stones_remain;
@@ -81,7 +80,7 @@ void Nim_GUI::refresh_screen(int stone_taken, int stones_remain, vector<string> 
     spawn_stones(stones_remain); /**< add stones to table as told by server */
     append_gamelog(newgamelog); /**< prepend new gamelog */
     announce_current_player(current_player, your_turn); /**< update message to announce player's turn */
-    cout << "inside refresh, done" << endl;
+    std::cout << "inside refresh, done" << std::endl;
     if (oneplayerstonenum < 2) {
         QMessageBox msgBox;
         msgBox.setText("End of game.");
@@ -95,6 +94,25 @@ void Nim_GUI::refresh_screen(int stone_taken, int stones_remain, vector<string> 
             this->destroy(true, true);
         }
     }
+}
+
+void Nim_GUI::displayStones(int num){
+    clear_stones(0);
+    spawn_stones(num);
+}
+
+void Nim_GUI::updatePlayerList(std::vector<std::string> players){
+
+}
+
+void Nim_GUI::displayMessage(std::string messageToDisplay){
+    std::vector<std::string> vec;
+    vec.push_back(messageToDisplay);
+    append_gamelog(vec);
+}
+
+void Nim_GUI::allowInput(bool isAllowed){
+    clearInput(isAllowed);
 }
 
 /**
@@ -191,16 +209,17 @@ void Nim_GUI::spawn_stones(int stones_remain)
  * @param newgamelog
  * Update the gamelog per turn.
  */
-void Nim_GUI::append_gamelog(vector<string> *newgamelog)
+void Nim_GUI::append_gamelog(const std::vector<std::string> &newgamelog)
 {
     QListWidgetItem *item;
-    for (auto it = newgamelog->begin(); it!= newgamelog->end(); ++it)
+    for (auto it = newgamelog.begin(); it!= newgamelog.end(); ++it)
     {
         item = new QListWidgetItem(QString::fromStdString(*it));
         ui->game_log->insertItem(0, item); /**< add a log */
         ui->game_log->setCurrentItem(item); /**< select and highlight it to focus */
     }
 }
+
 /**
  * @brief Nim_GUI::announce_current_player
  * @param current_player
@@ -208,7 +227,7 @@ void Nim_GUI::append_gamelog(vector<string> *newgamelog)
  * Server tells you who's turn is it to play now by setting the message.
  * Set input field visible if it's this player's turn.
  */
-void Nim_GUI::announce_current_player(string current_player, bool your_turn)
+void Nim_GUI::announce_current_player(std::string current_player, bool your_turn)
 {
     /// update input_visible: if it's your turn, unhide the input bar
     input_visible = your_turn;
@@ -228,32 +247,49 @@ int Nim_GUI::on_input_asked_returnPressed()
     QString tmp = ui->input_asked->text();
     if (tmp.length()>0) /**< check nonempty */
     {
-        oneplayerstonenum -= tmp.toInt();
-        NimInput *nimmsg = new NimInput(tmp.toInt(), oneplayerstonenum, tmp.toStdString() + " stones taken.", 1);
-        CS->send(nimmsg);
-//        delete nimmsg;
-        moved = true;
-        input_visible = false;
-        ui->input_asked->setVisible(input_visible); /**< hide input box */
 
-        /**< 1 player emergency backup */
-        /**< 1 player emergency backup */
-        /**< 1 player emergency backup */
-//        oneplayerstonenum -= tmp.toInt();
-        vector<string> *firelog = new vector<string>();
-        firelog->push_back("You took " + tmp.toStdString());
-        string me = "You";
-        bool your_turn = true;
-//        refresh_screen(oneplayerstonenum, firelog, me, your_turn);
-        /**< 1 player emergency backup */
-        /**< 1 player emergency backup */
-        /**< 1 player emergency backup */
+        emit playerWantsToRemoveStones(tmp.toInt());
+        // old
+        //oneplayerstonenum -= tmp.toInt();
+
+        // old
+//        NimInput *nimmsg = new NimInput(tmp.toInt(), oneplayerstonenum, tmp.toStdString() + " stones taken.", 1);
+//        CS->send(nimmsg);
+//        delete nimmsg;  // already commented out
+//        moved = true;
+//        input_visible = false;
+//        ui->input_asked->setVisible(input_visible); /**< hide input box */
+
+        // old
+//        /**< 1 player emergency backup */
+//        /**< 1 player emergency backup */
+//        /**< 1 player emergency backup */
+////        oneplayerstonenum -= tmp.toInt();
+//        vector<string> *firelog = new vector<string>();
+//        firelog->push_back("You took " + tmp.toStdString());
+//        string me = "You";
+//        bool your_turn = true;
+////        refresh_screen(oneplayerstonenum, firelog, me, your_turn);
+//        /**< 1 player emergency backup */
+//        /**< 1 player emergency backup */
+//        /**< 1 player emergency backup */
         ui->input_asked->clear();
         return tmp.toInt(); /**< convert input to int, return */
     }
     else {}
     //else do nothing
     ui->input_asked->clear();
+}
+
+void Nim_GUI::clearInput(bool isUserTurn){
+    moved = !isUserTurn;
+    input_visible = isUserTurn;
+    ui->input_asked->setVisible(input_visible); /**< hide input box */
+
+    bool your_turn = isUserTurn;
+
+    ui->input_asked->clear();
+
 }
 
 int Nim_GUI::get_input() {
@@ -269,9 +305,9 @@ int Nim_GUI::get_input() {
 /// Magic tester method: click the bottom left stone to activate
 void Nim_GUI::on_stone_9_clicked()
 {
-    vector<string> *v3 = new vector<string>();
-    v3->push_back("The game begins!");
-    string name = "Keng";
+    std::vector<std::string> v3;
+    v3.push_back("The game begins!");
+    std::string name = "Keng";
     bool your_turn = true;
 //    ui->game_log->clear();
 

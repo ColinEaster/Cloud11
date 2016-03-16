@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <QDebug>
+#include "../Nim/nim.h"
 
 ClientController::ClientController()
 {
@@ -26,6 +27,7 @@ ClientController::~ClientController(){
 
 void ClientController::connectToClientGui(){
     qRegisterMetaType< std::vector<string> >("std::vector<string>");
+
     QObject::connect(this,&ClientController::updatePlayerList,clientGui, &client_GUI::receiveUpdatedPlayerList);
     QObject::connect(clientGui, &client_GUI::nameEntered, this, &ClientController::receiveUserName);
     QObject::connect(clientGui, &client_GUI::hostDecision, this, &ClientController::receiveHostDecision);
@@ -108,13 +110,34 @@ void ClientController::createChat(){
 
 void ClientController::makeNimGameAndGui(){
     qDebug() << "make nim game and gui";
-    gameGui = new Nim_GUI();
+    Nim_GUI* nimGui = new Nim_GUI();
+    gameGui = nimGui;
     // create Nim game and connect slots
+    qDebug() << "creating game";
+    Nim* nimGame = new Nim(clientSocket, playerList, playerName, isHosting);
+    game = nimGame;
 
-
+    qDebug() << "connecting signals and slots";
+    qRegisterMetaType<ChatIncoming*>("ChatIncoming*");
+    QObject::connect(nimGui,&Nim_GUI::playerWantsToRemoveStones,nimGame, &Nim::receiveUserWantsToRemoveStones);
+    QObject::connect(nimGame,&Nim::displayMessage,nimGui,&Nim_GUI::displayMessage);
+    QObject::connect(nimGame, &Nim::displayStones, nimGui,&Nim_GUI::displayStones);
+    QObject::connect(nimGame, &Nim::sendPlayerList, nimGui, &Nim_GUI::updatePlayerList);
+    QObject::connect(nimGame, &Nim::allowInput, nimGui, &Nim_GUI::announce_current_player);
+    QObject::connect(nimGame, &Nim::quitGame, this, &ClientController::gameQuit);
+    QObject::connect(nimGame, &Nim::passChatMessage, this, &ClientController::receivedPassedChatMessage);
 
     gameGui->show();
     clientGui->hide();
+    qDebug() << "starting game";
+    nimGame->startGame();
+}
+
+void ClientController::gameQuit(){
+    gameGui->hide();
+    delete gameGui;
+    delete game;
+    clientGui->show();
 }
 
 void ClientController::mapClientAndServerFunctions(){
@@ -124,6 +147,7 @@ void ClientController::mapClientAndServerFunctions(){
     qDebug() << "result of map: " << clientGuiCreationFunctions["Nim"];
 }
 void ClientController::emitUpdatePlayerList(UpdateLobby* msg){
+    playerList = msg->playerlist;
     emit updatePlayerList(msg->playerlist);
     delete msg;
 }
@@ -135,6 +159,7 @@ void ClientController::emitUpdatePlayerList(UpdateLobby* msg){
 void ClientController::handle(UpdateLobby *msg)
 {
     //QMetaObject::invokeMethod(this, "emitUpdatePlayerList", Qt::QueuedConnection, Q_ARG(UpdateLobby*, msg));
+    this->playerList = msg->playerlist;
     emit updatePlayerList(msg->playerlist);
     delete msg;
 }
@@ -149,6 +174,9 @@ void ClientController::handle(JoinLobbySuccess *message)
 
 }
 
+void ClientController::receivedPassedChatMessage(ChatIncoming *message){
+    handle(message);
+}
 
 /**
  * @brief client_GUI::handle
@@ -159,14 +187,6 @@ void ClientController::handle(ChatIncoming *msg)
     chatwindow-> addChatString(msg->chatString);
 }
 
-/**
- * @brief client_GUI::handle
- * Update the chat messages
- */
-void ClientController::handle(NimIncoming *msg)
-{
-    std::cout << "incoming nim message";
-}
 
 void ClientController::handle(GameStart *) {
     // qt gui functions have to be called in the main thread

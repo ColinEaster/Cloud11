@@ -66,7 +66,7 @@ void GameServer::handle(ClientID client, GameOver * message)
 
 void GameServer::handle(ClientID client, GameOverFailure * message)
 {
-    // broadcast user who rage quit
+    // broadcast user who quit
 }
 
 void GameServer::handle(ClientID client, GameOverSuccess * message)
@@ -90,14 +90,14 @@ void GameServer::handle(ClientID client, JoinLobby *message)
 
 void GameServer::handle(ClientID client, ChatInput *message)
 {
-    std::cout << "preparing to broadcast chat" << endl;
+    std::cout << "preparing to broadcast chat" << std::endl;
     socket->broadcast(new ChatIncoming(message->chatString));
 }
 
 void GameServer::handle(ClientID client, NimInput *message)
 {
-    std::cout << "preparing to broadcast nim" << endl;
-    socket->broadcast(new NimIncoming(message->stoneTaken, message->stoneRemain, message->msg, message->turn));
+    std::cout << "preparing to broadcast nim" << std::endl;
+    socket->broadcast(new NimIncoming(message->stoneTaken,message->msg));
 }
 void GameServer::startGame()
 {

@@ -18,7 +18,6 @@ public:
     void handle(UpdateLobby *msg);
     void handle(JoinLobbySuccess *message);
     void handle(ChatIncoming *msg);
-    void handle(NimIncoming *msg);
     void handle(GameStart *);
 
 
@@ -33,6 +32,8 @@ public slots:
 
     void makeNimGameAndGui();
     void emitUpdatePlayerList(UpdateLobby* msg);
+    void gameQuit();
+    void receivedPassedChatMessage(ChatIncoming* message);
 
 signals:
     void updatePlayerList(std::vector<string>);
@@ -74,6 +75,8 @@ private:
     std::string gameChosen = "";
     std::string playerName = "";
     std::string ipToConnectTo = "127.0.0.1";
+    std::vector<std::string> playerList;
+
     bool isHosting = false;
 
 

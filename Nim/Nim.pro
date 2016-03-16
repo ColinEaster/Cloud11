@@ -1,14 +1,12 @@
-
 QT       += core gui
-QT += widgets
 
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+TARGET = Nim
 TEMPLATE = app
-CONFIG += console
-CONFIG -= app_bundle
-#CONFIG -= qt
+CONFIG -= console
 CONFIG += c++11
 QMAKE_CXXFLAGS += -stdlib=libc++
-
 
 SOURCES += \
     nim_main.cpp \
@@ -61,5 +59,5 @@ FORMS    += ../client_GUI/client_gui.ui \
     ../client_GUI/nim_gui.ui \
     ../client_GUI/chat.ui
 
-
+RESOURCES += ../client_GUI/images.qrc
 

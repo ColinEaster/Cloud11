@@ -9,7 +9,6 @@
 #include <vector>
 
 
-using namespace std;
 
 /**
  * @brief Informs Players who the game begins with.
@@ -20,14 +19,14 @@ using namespace std;
  */
 class UpdateLobby : public Message<UpdateLobby> {
 public:
-    UpdateLobby(vector<string> playerlist) : playerlist(playerlist) { }
+    UpdateLobby(std::vector<std::string> playerlist) : playerlist(playerlist) { }
 
     int size() const { return Formats::size(&playerlist); }
     void write(char *& dest) const { Formats::write(dest, &playerlist); }
 
-    vector<string> playerlist;
+    std::vector<std::string> playerlist;
 
-    static UpdateLobby * implRead(char *&source) { return new UpdateLobby(Formats::read<vector<string>>(source)); }
+    static UpdateLobby * implRead(char *&source) { return new UpdateLobby(Formats::read<std::vector<std::string>>(source)); }
 };
 
 /**
@@ -36,14 +35,14 @@ public:
  */
 class HostLobby : public Message<HostLobby> {
 public:
-    HostLobby(string hostname, string gameName) : hostname(hostname), gameName(gameName) { }
+    HostLobby(std::string hostname, std::string gameName) : hostname(hostname), gameName(gameName) { }
 
     int size() const { return Formats::size(&hostname, &gameName); }
     void write(char *& dest) const { Formats::write(dest, &hostname, &gameName); }
 
-    string hostname, gameName;
+    std::string hostname, gameName;
 
-    static HostLobby * implRead(char *&source) { return new HostLobby(Formats::read<string>(source), Formats::read<string>(source)); }
+    static HostLobby * implRead(char *&source) { return new HostLobby(Formats::read<std::string>(source), Formats::read<std::string>(source)); }
 };
 /**
  * @brief The CloseLobby class
@@ -51,67 +50,67 @@ public:
  */
 class CloseLobby : public Message<CloseLobby> {
 public:
-    CloseLobby(string hostname) : hostname(hostname) { }
+    CloseLobby(std::string hostname) : hostname(hostname) { }
 
     int size() const { return Formats::size(&hostname); }
     void write(char *& dest) const { Formats::write(dest, &hostname); }
 
-    string hostname;
+    std::string hostname;
 
-    static CloseLobby * implRead(char *&source) { return new CloseLobby(Formats::read<string>(source)); }
+    static CloseLobby * implRead(char *&source) { return new CloseLobby(Formats::read<std::string>(source)); }
 };
 
 
 class ChatInput : public Message<ChatInput> {
 public:
-    ChatInput(string chatString) : chatString(chatString) { }
+    ChatInput(std::string chatString) : chatString(chatString) { }
 
     int size() const { return Formats::size(&chatString); }
     void write(char *& dest) const { Formats::write(dest, &chatString); }
 
-    string chatString;
+    std::string chatString;
 
-    static ChatInput * implRead(char *&source) { return new ChatInput(Formats::read<string>(source)); }
+    static ChatInput * implRead(char *&source) { return new ChatInput(Formats::read<std::string>(source)); }
 };
 
 
 
 class ChatIncoming : public Message<ChatIncoming> {
 public:
-    ChatIncoming(string chatString) : chatString(chatString) { }
+    ChatIncoming(std::string chatString) : chatString(chatString) { }
 
     int size() const { return Formats::size(&chatString); }
     void write(char *& dest) const { Formats::write(dest, &chatString); }
 
-    string chatString;
+    std::string chatString;
 
-    static ChatIncoming * implRead(char *&source) { return new ChatIncoming(Formats::read<string>(source)); }
+    static ChatIncoming * implRead(char *&source) { return new ChatIncoming(Formats::read<std::string>(source)); }
 };
 
 
 class NimInput : public Message<NimInput> {
 public:
-    NimInput(int stoneTaken, int stoneRemain, string msg, int turn) : stoneTaken(stoneTaken), stoneRemain(stoneRemain), msg(msg), turn(turn) { }
+    NimInput(int stoneTaken, std::string msg) : stoneTaken(stoneTaken), msg(msg) { }
 
-    int size() const { return Formats::size(&stoneTaken, &stoneRemain, &msg, &turn); }
-    void write(char *& dest) const { Formats::write(dest, &stoneTaken, &stoneRemain, &msg, &turn); }
+    int size() const { return Formats::size(&stoneTaken, &msg); }
+    void write(char *& dest) const { Formats::write(dest, &stoneTaken, &msg); }
 
-    int stoneTaken; int stoneRemain; string msg; int turn;
+    int stoneTaken; std::string msg;
 
-    static NimInput * implRead(char *&source) { return new NimInput(Formats::read<int>(source), Formats::read<int>(source), Formats::read<string>(source), Formats::read<int>(source)); }
+    static NimInput * implRead(char *&source) { return new NimInput(Formats::read<int>(source), Formats::read<std::string>(source)); }
 };
 
 
 class NimIncoming : public Message<NimIncoming> {
 public:
-    NimIncoming(int stoneTaken, int stoneRemain, string msg, int turn) : stoneTaken(stoneTaken), stoneRemain(stoneRemain), msg(msg), turn(turn) { }
+    NimIncoming(int stoneTaken,std::string msg) : stoneTaken(stoneTaken), msg(msg) { }
 
-    int size() const { return Formats::size(&stoneTaken, &stoneRemain, &msg, &turn); }
-    void write(char *& dest) const { Formats::write(dest, &stoneTaken, &stoneRemain, &msg, &turn); }
+    int size() const { return Formats::size(&stoneTaken, &msg); }
+    void write(char *& dest) const { Formats::write(dest, &stoneTaken, &msg); }
 
-    int stoneTaken; int stoneRemain; string msg; int turn;
+    int stoneTaken; std::string msg;
 
-    static NimIncoming * implRead(char *&source) { return new NimIncoming(Formats::read<int>(source), Formats::read<int>(source), Formats::read<string>(source), Formats::read<int>(source)); }
+    static NimIncoming * implRead(char *&source) { return new NimIncoming(Formats::read<int>(source), Formats::read<std::string>(source)); }
 };
 
 

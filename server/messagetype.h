@@ -39,6 +39,8 @@ enum class MessageType : int {
     C2S_Ask,
     C2S_PutDown,
 
+    S2C_PlayerList,
+
     ENUM_COUNT
 };
 
@@ -85,5 +87,7 @@ DEFINE_MAPPING(MessageType::C2S2C_PlayerRemovedItems, PlayerRemovedItems)
 DEFINE_MAPPING(MessageType::C2S_ReceiveEndTurn, ReceiveEndTurn)
 DEFINE_MAPPING(MessageType::C2S_Ask, Ask)
 DEFINE_MAPPING(MessageType::C2S_PutDown, PutDown)
+
+DEFINE_MAPPING(MessageType::S2C_PlayerList, PlayerList)
 
 #endif // MESSAGETYPE_H

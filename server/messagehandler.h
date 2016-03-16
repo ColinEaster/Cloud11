@@ -14,7 +14,7 @@
 #include "../GoFishServer/gfservermess.h"
 
 #define HANDLE(MESSAGE) \
-    virtual void handle(MESSAGE *) { std::cout << "<MessageHandler>: Wake up, sheeple..." << std::endl; }
+    virtual void handle(MESSAGE *) { std::cout << "<MessageHandler>: Default handler..." << std::endl; }
 
 class MessageHandler {
 public:
@@ -40,7 +40,7 @@ public:
     HANDLE(ReceiveEndTurn)
     HANDLE(Ask)
     HANDLE(PutDown)
-
+    HANDLE(PlayerList)
 
     template<typename M>
     void handleTemplate(M *message) {
