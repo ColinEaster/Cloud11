@@ -65,5 +65,4 @@ Game::~Game()
 {
     delete objects;
     delete players;
-    delete socket;
 }

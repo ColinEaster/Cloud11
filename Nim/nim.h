@@ -40,6 +40,8 @@ public slots:
     void startGame();
     void nimIncomingMessageReceived(int);
 
+    void mainThreadEndGame();
+
 signals:
     void removeStones(int);
     void displayStones(int);

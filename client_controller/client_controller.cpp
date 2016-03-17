@@ -134,10 +134,13 @@ void ClientController::makeNimGameAndGui(){
 }
 
 void ClientController::gameQuit(){
+    qDebug() << "starting to quit game";
     gameGui->hide();
     delete gameGui;
     delete game;
     clientGui->show();
+    qDebug() << "quit game, resetting handler";
+    clientSocket->setHandler(this);
 }
 
 void ClientController::mapClientAndServerFunctions(){

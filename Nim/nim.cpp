@@ -44,8 +44,8 @@ Nim::Nim(Socket *client_socket, std::vector<std::string> playerList, std::string
     gameNotOver = true;
     yourTurn = hosting;
 
-    amountsThatCanBeRemoved.push_back(1);
     amountsThatCanBeRemoved.push_back(2);
+    amountsThatCanBeRemoved.push_back(3);
     this->playerName = playerName;
     std::remove(playerList.begin(), playerList.end(), playerName);
     opponentName = playerList[0];
@@ -107,11 +107,14 @@ bool Nim::checkForGameOver()
     }
     return false;
 }
-
-void Nim::endTheGame(){
-    std::cout << "done";
+void Nim::mainThreadEndGame(){
+    std::cout << "main thread ending nim";
     emit displayMessage("The game is over.");
     emit quitGame();
+}
+
+void Nim::endTheGame(){
+    QMetaObject::invokeMethod(this, "mainThreadEndGame", Qt::QueuedConnection);
 }
 
 void Nim::gameOver(){
